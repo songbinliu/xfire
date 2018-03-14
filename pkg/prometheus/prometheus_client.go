@@ -107,25 +107,6 @@ func (c *MetricRestClient) Query(query string) (*promData, error) {
 	return ss.Data, nil
 }
 
-func (c *MetricRestClient) Test(query string) {
-	//query := "rate(envoy_cluster_cds_internal_upstream_rq_200{job='envoy'}[3m])"
-	//query := "envoy_cluster_sds_upstream_cx_length_ms"
-	//query := "istio_request_count"
-	result, err := c.Query(query)
-	if err != nil {
-		glog.Errorf("Failed to query: %v: %v", query, err)
-		return
-	}
-
-	glog.V(2).Infof("query=%v, result.type=%v, \nresult.content=%v", query, result.ResultType, string(result.Result))
-
-	var metrics []PrometheusMetric
-	if err := json.Unmarshal(result.Result, &metrics); err != nil {
-		glog.Errorf("Unmarshal failed: %v", err)
-	}
-	glog.V(2).Infof("dat = %++v", metrics)
-}
-
 func (c *MetricRestClient) GetMetrics(input PrometheusInput) ([]MetricData, error) {
 	result := []MetricData{}
 

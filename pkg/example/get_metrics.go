@@ -23,7 +23,7 @@ const (
 	K8S_PREFIX_LEN = len(K8S_PREFIX)
 )
 
-func Test_istio(client *pclient.MetricRestClient) {
+func GetIstioMetric(client *pclient.MetricRestClient) {
 	q := NewIstioQuery()
 
 	for i := 0; i < 4; i++ {

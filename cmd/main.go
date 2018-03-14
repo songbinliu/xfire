@@ -33,9 +33,7 @@ func testPrometheus(mclient *prometheus.MetricRestClient) {
 	glog.V(2).Infof("Begin to test prometheus client...")
 	getJobs(mclient)
 
-	mclient.Test(query)
-
-	example.Test_istio(mclient)
+	example.GetIstioMetric(mclient)
 	return
 }
 
