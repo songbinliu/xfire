@@ -17,7 +17,7 @@ const (
 	turbo_POD_LATENCY_COUNT = "istio_turbo_pod_latency_time_ms_count"
 	turbo_POD_REQUEST_COUNT = "istio_turbo_pod_request_count"
 
-	turbo_LATENCY_DURATION = "3m"
+	turboLatencyDuration = "3m"
 
 	k8sPrefix    = "kubernetes://"
 	k8sPrefixLen = len(k8sPrefix)
@@ -61,7 +61,7 @@ func getLatencyExp(pod bool) string {
 		name_sum = turbo_SVC_LATENCY_SUM
 		name_count = turbo_SVC_LATENCY_COUNT
 	}
-	du := turbo_LATENCY_DURATION
+	du := turboLatencyDuration
 
 	result := fmt.Sprintf("rate(%v{response_code=\"200\"}[%v])/rate(%v{response_code=\"200\"}[%v])", name_sum, du, name_count, du)
 	return result
@@ -75,7 +75,7 @@ func getRPSExp(pod bool) string {
 	} else {
 		name_count = turbo_SVC_REQUEST_COUNT
 	}
-	du := turbo_LATENCY_DURATION
+	du := turboLatencyDuration
 
 	result := fmt.Sprintf("rate(%v{response_code=\"200\"}[%v])", name_count, du)
 	return result

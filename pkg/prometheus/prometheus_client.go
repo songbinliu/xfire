@@ -60,7 +60,7 @@ func (c *RestClient) SetUser(username, password string) {
 
 func (c *RestClient) Query(query string) (*promData, error) {
 	p := fmt.Sprintf("%v%v", c.host, apiQueryPath)
-	glog.V(2).Infof("path=%v", p)
+	glog.V(4).Infof("path=%v, query=%v", p, query)
 
 	req, err := http.NewRequest("GET", p, nil)
 	if err != nil {
@@ -102,12 +102,12 @@ func (c *RestClient) Query(query string) (*promData, error) {
 		return nil, fmt.Errorf(ss.Error)
 	}
 
-	glog.V(3).Infof("resp: %++v", string(result))
-	glog.V(3).Infof("metric: %+++v", ss)
+	glog.V(4).Infof("resp: %++v", string(result))
+	glog.V(4).Infof("metric: %+++v", ss)
 	return ss.Data, nil
 }
 
-func (c *RestClient) GetMetrics(input PrometheusInput) ([]MetricData, error) {
+func (c *RestClient) GetMetrics(input RequestInput) ([]MetricData, error) {
 	result := []MetricData{}
 
 	//1. query

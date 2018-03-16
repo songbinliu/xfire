@@ -32,35 +32,35 @@ type MetricData interface {
 	GetValue() float64
 }
 
-type PrometheusInput interface {
+type RequestInput interface {
 	GetQuery() string
 	Parse(metric *RawMetric) (MetricData, error)
 }
 
 // -----------------------------------------------------------
 // an example implementation of PrometheusInput and MetricData
-type GeneralMetricData struct {
+type BasicMetricData struct {
 	Labels map[string]string
 	Value  float64
 }
 
-type GeneralPrometheusInput struct {
+type BasicPrometheusInput struct {
 	query string
 }
 
-func NewGeneralPrometheusInput() *GeneralPrometheusInput {
-	return &GeneralPrometheusInput{}
+func NewGeneralPrometheusInput() *BasicPrometheusInput {
+	return &BasicPrometheusInput{}
 }
 
-func (input *GeneralPrometheusInput) GetQuery() string {
+func (input *BasicPrometheusInput) GetQuery() string {
 	return input.query
 }
 
-func (input *GeneralPrometheusInput) SetQuery(q string) {
+func (input *BasicPrometheusInput) SetQuery(q string) {
 	input.query = q
 }
 
-func (input *GeneralPrometheusInput) Parse(m *RawMetric) (MetricData, error) {
+func (input *BasicPrometheusInput) Parse(m *RawMetric) (MetricData, error) {
 	d := NewGeneralMetricData()
 
 	for k, v := range m.Labels {
@@ -74,21 +74,21 @@ func (input *GeneralPrometheusInput) Parse(m *RawMetric) (MetricData, error) {
 	return d, nil
 }
 
-func NewGeneralMetricData() *GeneralMetricData {
-	return &GeneralMetricData{
+func NewGeneralMetricData() *BasicMetricData {
+	return &BasicMetricData{
 		Labels: make(map[string]string),
 	}
 }
 
-func (d *GeneralMetricData) GetEntityID() (string, error) {
+func (d *BasicMetricData) GetEntityID() (string, error) {
 	return "", nil
 }
 
-func (d *GeneralMetricData) GetValue() float64 {
+func (d *BasicMetricData) GetValue() float64 {
 	return d.Value
 }
 
-func (d *GeneralMetricData) String() string {
+func (d *BasicMetricData) String() string {
 	var buffer bytes.Buffer
 
 	buffer.WriteString(fmt.Sprintf("value=%.6f\n", d.Value))

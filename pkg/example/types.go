@@ -9,6 +9,7 @@ import (
 	pclient "github.com/songbinliu/client_prometheus/pkg/prometheus"
 )
 
+// IstioQuery : generate queries for Istio-Prometheus metrics 
 // qtype 0: pod.request-per-second
 //       1: pod.latency
 //       2: service.request-per-second
@@ -18,6 +19,7 @@ type IstioQuery struct {
 	queryMap map[int]string
 }
 
+// IstioMetricData : hold the result of Istio-Prometheus data
 type IstioMetricData struct {
 	Labels map[string]string `json:"labels"`
 	Value  float64           `json:"value"`
@@ -25,6 +27,7 @@ type IstioMetricData struct {
 	dtype  int //0,1,2,3 same as qtype
 }
 
+// NewIstioQuery : create a new IstioQuery
 func NewIstioQuery() *IstioQuery {
 	q := &IstioQuery{
 		qtype:    0,
