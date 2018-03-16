@@ -21,16 +21,18 @@ type RawData struct {
 	Result     json.RawMessage `json:"result"`
 }
 
+// RawMetric the raw metric from Prometheus: its labels and a time/value pair
 type RawMetric struct {
 	Labels map[string]string `json:"metric"`
 	Value  model.SamplePair  `json:"value"`
 }
 
-// interface to transfer the json.RawMessage to Value + Labels
+// MetricData : interface to transform the RawMetric to customer defined data structure
 type MetricData interface {
 	GetValue() float64
 }
 
+// RequestInput : interface for customer defined query generator, and RawMetric parser.
 type RequestInput interface {
 	GetQuery() string
 	Parse(metric *RawMetric) (MetricData, error)
