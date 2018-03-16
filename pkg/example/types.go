@@ -67,7 +67,7 @@ func (q *IstioQuery) GetQuery() string {
 	return q.queryMap[q.qtype]
 }
 
-func (q *IstioQuery) Parse(m *pclient.PrometheusMetric) (pclient.MetricData, error) {
+func (q *IstioQuery) Parse(m *pclient.RawMetric) (pclient.MetricData, error) {
 	d := NewIstioMetricData()
 	d.SetType(q.qtype)
 	if err := d.Parse(m); err != nil {
@@ -95,7 +95,7 @@ func NewIstioMetricData() *IstioMetricData {
 	}
 }
 
-func (d *IstioMetricData) Parse(m *pclient.PrometheusMetric) error {
+func (d *IstioMetricData) Parse(m *pclient.RawMetric) error {
 	d.Value = float64(m.Value.Value)
 	if math.IsNaN(d.Value) {
 		return fmt.Errorf("Failed to convert value: NaN")

@@ -20,7 +20,7 @@ func parseFlags() {
 	flag.Parse()
 }
 
-func getJobs(mclient *prometheus.MetricRestClient) {
+func getJobs(mclient *prometheus.RestClient) {
 	msg, err := mclient.GetJobs()
 	if err != nil {
 		glog.Errorf("Failed to get jobs: %v", err)
@@ -29,7 +29,7 @@ func getJobs(mclient *prometheus.MetricRestClient) {
 	glog.V(1).Infof("jobs: %v", msg)
 }
 
-func testPrometheus(mclient *prometheus.MetricRestClient) {
+func testPrometheus(mclient *prometheus.RestClient) {
 	glog.V(2).Infof("Begin to test prometheus client...")
 	getJobs(mclient)
 
@@ -37,7 +37,7 @@ func testPrometheus(mclient *prometheus.MetricRestClient) {
 	return
 }
 
-func testGeneral(mclient *prometheus.MetricRestClient) {
+func testGeneral(mclient *prometheus.RestClient) {
 	glog.V(2).Infof("Begin to test general client ...")
 	input := prometheus.NewGeneralPrometheusInput()
 

@@ -9,21 +9,23 @@ import (
 
 const (
 	// NOTO: for istio 2.x, the prefix "istio_" should be removed
-	TURBO_SVC_LATENCY_SUM   = "istio_turbo_service_latency_time_ms_sum"
-	TURBO_SVC_LATENCY_COUNT = "istio_turbo_service_latency_time_ms_count"
-	TURBO_SVC_REQUEST_COUNT = "istio_turbo_service_request_count"
+	turbo_SVC_LATENCY_SUM   = "istio_turbo_service_latency_time_ms_sum"
+	turbo_SVC_LATENCY_COUNT = "istio_turbo_service_latency_time_ms_count"
+	turbo_SVC_REQUEST_COUNT = "istio_turbo_service_request_count"
 
-	TURBO_POD_LATENCY_SUM   = "istio_turbo_pod_latency_time_ms_sum"
-	TURBO_POD_LATENCY_COUNT = "istio_turbo_pod_latency_time_ms_count"
-	TURBO_POD_REQUEST_COUNT = "istio_turbo_pod_request_count"
+	turbo_POD_LATENCY_SUM   = "istio_turbo_pod_latency_time_ms_sum"
+	turbo_POD_LATENCY_COUNT = "istio_turbo_pod_latency_time_ms_count"
+	turbo_POD_REQUEST_COUNT = "istio_turbo_pod_request_count"
 
-	TURBO_LATENCY_DURATION = "3m"
+	turbo_LATENCY_DURATION = "3m"
 
-	K8S_PREFIX     = "kubernetes://"
-	K8S_PREFIX_LEN = len(K8S_PREFIX)
+	k8sPrefix    = "kubernetes://"
+	k8sPrefixLen = len(k8sPrefix)
 )
 
-func GetIstioMetric(client *pclient.MetricRestClient) {
+// GetIstioMetric :
+//   An example to get the 4 kinds of metrics from Istio-Prometheus
+func GetIstioMetric(client *pclient.RestClient) {
 	q := NewIstioQuery()
 
 	for i := 0; i < 4; i++ {
@@ -53,13 +55,13 @@ func getLatencyExp(pod bool) string {
 	name_sum := ""
 	name_count := ""
 	if pod {
-		name_sum = TURBO_POD_LATENCY_SUM
-		name_count = TURBO_POD_LATENCY_COUNT
+		name_sum = turbo_POD_LATENCY_SUM
+		name_count = turbo_POD_LATENCY_COUNT
 	} else {
-		name_sum = TURBO_SVC_LATENCY_SUM
-		name_count = TURBO_SVC_LATENCY_COUNT
+		name_sum = turbo_SVC_LATENCY_SUM
+		name_count = turbo_SVC_LATENCY_COUNT
 	}
-	du := TURBO_LATENCY_DURATION
+	du := turbo_LATENCY_DURATION
 
 	result := fmt.Sprintf("rate(%v{response_code=\"200\"}[%v])/rate(%v{response_code=\"200\"}[%v])", name_sum, du, name_count, du)
 	return result
@@ -69,11 +71,11 @@ func getLatencyExp(pod bool) string {
 func getRPSExp(pod bool) string {
 	name_count := ""
 	if pod {
-		name_count = TURBO_POD_REQUEST_COUNT
+		name_count = turbo_POD_REQUEST_COUNT
 	} else {
-		name_count = TURBO_SVC_REQUEST_COUNT
+		name_count = turbo_SVC_REQUEST_COUNT
 	}
-	du := TURBO_LATENCY_DURATION
+	du := turbo_LATENCY_DURATION
 
 	result := fmt.Sprintf("rate(%v{response_code=\"200\"}[%v])", name_count, du)
 	return result
@@ -82,17 +84,17 @@ func getRPSExp(pod bool) string {
 // convert the UID from "kubernetes://<podName>.<namespace>" to "<namespace>/<podName>"
 // for example, "kubernetes://video-671194421-vpxkh.default" to "default/video-671194421-vpxkh"
 func convertPodUID(uid string) (string, error) {
-	if !strings.HasPrefix(uid, K8S_PREFIX) {
-		return "", fmt.Errorf("Not start with %v", K8S_PREFIX)
+	if !strings.HasPrefix(uid, k8sPrefix) {
+		return "", fmt.Errorf("Not start with %v", k8sPrefix)
 	}
 
-	items := strings.Split(uid[K8S_PREFIX_LEN:], ".")
+	items := strings.Split(uid[k8sPrefixLen:], ".")
 	if len(items) < 2 {
-		return "", fmt.Errorf("Not enough fields: %v", uid[K8S_PREFIX_LEN:])
+		return "", fmt.Errorf("Not enough fields: %v", uid[k8sPrefixLen:])
 	}
 
 	if len(items) > 2 {
-		glog.Warningf("expected 2, got %d for: %v", len(items), uid[K8S_PREFIX_LEN:])
+		glog.Warningf("expected 2, got %d for: %v", len(items), uid[k8sPrefixLen:])
 	}
 
 	items[0] = strings.TrimSpace(items[0])

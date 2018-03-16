@@ -21,7 +21,7 @@ type promData struct {
 	Result     json.RawMessage `json:"result"`
 }
 
-type PrometheusMetric struct {
+type RawMetric struct {
 	Labels map[string]string `json:"metric"`
 	Value  model.SamplePair  `json:"value"`
 }
@@ -34,7 +34,7 @@ type MetricData interface {
 
 type PrometheusInput interface {
 	GetQuery() string
-	Parse(metric *PrometheusMetric) (MetricData, error)
+	Parse(metric *RawMetric) (MetricData, error)
 }
 
 // -----------------------------------------------------------
@@ -60,7 +60,7 @@ func (input *GeneralPrometheusInput) SetQuery(q string) {
 	input.query = q
 }
 
-func (input *GeneralPrometheusInput) Parse(m *PrometheusMetric) (MetricData, error) {
+func (input *GeneralPrometheusInput) Parse(m *RawMetric) (MetricData, error) {
 	d := NewGeneralMetricData()
 
 	for k, v := range m.Labels {

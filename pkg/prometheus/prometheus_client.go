@@ -12,21 +12,21 @@ import (
 )
 
 const (
-	API_PATH       = "/api/v1/"
-	API_QUERY_PATH = "/api/v1/query"
-	API_RANGE_PATH = "/api/v1/query_range"
+	apiPath      = "/api/v1/"
+	apiQueryPath = "/api/v1/query"
+	apiRangePath = "/api/v1/query_range"
 
 	defaultTimeOut = time.Duration(60 * time.Second)
 )
 
-type MetricRestClient struct {
+type RestClient struct {
 	client   *http.Client
 	host     string
 	username string
 	password string
 }
 
-func NewRestClient(host string) (*MetricRestClient, error) {
+func NewRestClient(host string) (*RestClient, error) {
 	//1. get http client
 	client := &http.Client{
 		Timeout: defaultTimeOut,
@@ -47,19 +47,19 @@ func NewRestClient(host string) (*MetricRestClient, error) {
 
 	glog.V(2).Infof("Prometheus server address is: %v", host)
 
-	return &MetricRestClient{
+	return &RestClient{
 		client: client,
 		host:   host,
 	}, nil
 }
 
-func (c *MetricRestClient) SetUser(username, password string) {
+func (c *RestClient) SetUser(username, password string) {
 	c.username = username
 	c.password = password
 }
 
-func (c *MetricRestClient) Query(query string) (*promData, error) {
-	p := fmt.Sprintf("%v%v", c.host, API_QUERY_PATH)
+func (c *RestClient) Query(query string) (*promData, error) {
+	p := fmt.Sprintf("%v%v", c.host, apiQueryPath)
 	glog.V(2).Infof("path=%v", p)
 
 	req, err := http.NewRequest("GET", p, nil)
@@ -107,7 +107,7 @@ func (c *MetricRestClient) Query(query string) (*promData, error) {
 	return ss.Data, nil
 }
 
-func (c *MetricRestClient) GetMetrics(input PrometheusInput) ([]MetricData, error) {
+func (c *RestClient) GetMetrics(input PrometheusInput) ([]MetricData, error) {
 	result := []MetricData{}
 
 	//1. query
@@ -127,7 +127,7 @@ func (c *MetricRestClient) GetMetrics(input PrometheusInput) ([]MetricData, erro
 	}
 
 	//2. parse/decode the value
-	var resp []PrometheusMetric
+	var resp []RawMetric
 	if err := json.Unmarshal(qresult.Result, &resp); err != nil {
 		glog.Errorf("Failed to unmarshal: %v", err)
 		return result, err
@@ -147,8 +147,8 @@ func (c *MetricRestClient) GetMetrics(input PrometheusInput) ([]MetricData, erro
 	return result, nil
 }
 
-func (c *MetricRestClient) GetJobs() (string, error) {
-	p := fmt.Sprintf("%v%v%v", c.host, API_PATH, "label/job/values")
+func (c *RestClient) GetJobs() (string, error) {
+	p := fmt.Sprintf("%v%v%v", c.host, apiPath, "label/job/values")
 	glog.V(2).Infof("path=%v", p)
 
 	//1. prepare result

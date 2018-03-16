@@ -5,11 +5,6 @@ import (
 	"testing"
 )
 
-func Test_DataType(t *testing.T) {
-	data := NewIstioMetricData()
-	DoParse(data)
-}
-
 func Test_ConvertPodUID(t *testing.T) {
 	inputs := []string{
 		"kubernetes://video-671194421-vpxkh.default",
