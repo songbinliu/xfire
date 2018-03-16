@@ -9,11 +9,20 @@ import (
 	pclient "github.com/songbinliu/client_prometheus/pkg/prometheus"
 )
 
+const (
+	istioServiceLabel = "destination_service"
+
+	metricSourceLabel = "metric_source"
+	metricTypeLabel = "metric_type"
+
+	qpsValue = "transaction_used"
+	latencyValue = "latency_used"
+
+)
+
 // IstioQuery : generate queries for Istio-Prometheus metrics 
-// qtype 0: pod.request-per-second
-//       1: pod.latency
-//       2: service.request-per-second
-//       3: service.latency
+// qtype 0: svc.request-per-second
+//       1: svc.latency
 type IstioQuery struct {
 	qtype    int
 	queryMap map[int]string
@@ -24,7 +33,7 @@ type IstioMetricData struct {
 	Labels map[string]string `json:"labels"`
 	Value  float64           `json:"value"`
 	uuid   string
-	dtype  int //0,1,2,3 same as qtype
+	dtype  int //0,1 same as qtype
 }
 
 // NewIstioQuery : create a new IstioQuery
@@ -34,31 +43,20 @@ func NewIstioQuery() *IstioQuery {
 		queryMap: make(map[int]string),
 	}
 
-	isPod := true
-	q.queryMap[0] = getRPSExp(isPod)
-	q.queryMap[1] = getLatencyExp(isPod)
-	isPod = false
-	q.queryMap[2] = getRPSExp(isPod)
-	q.queryMap[3] = getLatencyExp(isPod)
+	q.queryMap[0] = getRPSExp()
+	q.queryMap[1] = getLatencyExp()
 
 	return q
 }
 
 func (q *IstioQuery) SetQueryType(t int) error {
-	if t < 0 {
-		err := fmt.Errorf("Invalid query type: %d, vs 0|1|2|3", t)
-		glog.Error(err)
-		return err
-	}
-
-	if t > len(q.queryMap) {
-		err := fmt.Errorf("Invalid query type: %d, vs 0|1|2|3", t)
+	if t < 0  || t > len(q.queryMap){
+		err := fmt.Errorf("Invalid query type: %d, vs 0|1", t)
 		glog.Error(err)
 		return err
 	}
 
 	q.qtype = t
-
 	return nil
 }
 
@@ -104,11 +102,20 @@ func (d *IstioMetricData) Parse(m *pclient.RawMetric) error {
 		return fmt.Errorf("Failed to convert value: NaN")
 	}
 
+	//1. select some original labels
 	labels := m.Labels
-	if v, ok := labels["destination_uid"]; ok {
-		d.Labels["destination_uid"] = v
+	if v, ok := labels[istioServiceLabel]; ok {
+		d.Labels[istioServiceLabel] = v
 	} else {
 		return fmt.Errorf("No content for destination uid")
+	}
+
+	//2. add other labes
+	d.Labels[metricSourceLabel] = "istio"
+	if d.dtype == 0{
+		d.Labels[metricTypeLabel] = qpsValue
+	} else {
+		d.Labels[metricTypeLabel] = latencyValue
 	}
 
 	return nil
@@ -119,7 +126,7 @@ func (d *IstioMetricData) SetType(t int) {
 }
 
 func (d *IstioMetricData) GetEntityID() (string, error) {
-	label := "destination_uid"
+	label := istioServiceLabel
 	muid, ok := d.Labels[label]
 	if !ok {
 		err := fmt.Errorf("label-[%s] is missing", label)
@@ -127,17 +134,7 @@ func (d *IstioMetricData) GetEntityID() (string, error) {
 		return "", err
 	}
 
-	if d.dtype == 0 || d.dtype == 1 {
-		return convertPodUID(muid)
-	}
-
-	if d.dtype == 2 || d.dtype == 3 {
-		return convertSVCUID(muid)
-	}
-
-	err := fmt.Errorf("Invalid dtype: %v", d.dtype)
-	glog.Error(err.Error())
-	return "", err
+	return convertSVCUID(muid)
 }
 
 func (d *IstioMetricData) GetValue() float64 {
@@ -154,6 +151,8 @@ func (d *IstioMetricData) String() string {
 	}
 
 	content := fmt.Sprintf("uid=%v, value=%.5f", uid, d.GetValue())
+	buffer.WriteString(content)
+	content = fmt.Sprintf(" (%s, %s)", d.Labels[metricTypeLabel], d.Labels[metricSourceLabel])
 	buffer.WriteString(content)
 
 	return buffer.String()

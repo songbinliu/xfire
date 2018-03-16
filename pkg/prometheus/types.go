@@ -11,12 +11,12 @@ import (
 // for internal use only
 type promeResponse struct {
 	Status    string    `json:"status"`
-	Data      *promData `json:"data,omitempty"`
+	Data      *RawData `json:"data,omitempty"`
 	ErrorType string    `json:"errorType,omitempty"`
 	Error     string    `json:"error,omitempty"`
 }
 
-type promData struct {
+type RawData struct {
 	ResultType string          `json:"resultType"`
 	Result     json.RawMessage `json:"result"`
 }
@@ -28,7 +28,6 @@ type RawMetric struct {
 
 // interface to transfer the json.RawMessage to Value + Labels
 type MetricData interface {
-	GetEntityID() (string, error)
 	GetValue() float64
 }
 
@@ -38,29 +37,30 @@ type RequestInput interface {
 }
 
 // -----------------------------------------------------------
-// an example implementation of PrometheusInput and MetricData
+// an example implementation of RequestInput and MetricData
 type BasicMetricData struct {
 	Labels map[string]string
 	Value  float64
 }
 
-type BasicPrometheusInput struct {
+// this BasicInput will copy all the labels from the RawData
+type BasicInput struct {
 	query string
 }
 
-func NewGeneralPrometheusInput() *BasicPrometheusInput {
-	return &BasicPrometheusInput{}
+func NewBasicInput() *BasicInput {
+	return &BasicInput{}
 }
 
-func (input *BasicPrometheusInput) GetQuery() string {
+func (input *BasicInput) GetQuery() string {
 	return input.query
 }
 
-func (input *BasicPrometheusInput) SetQuery(q string) {
+func (input *BasicInput) SetQuery(q string) {
 	input.query = q
 }
 
-func (input *BasicPrometheusInput) Parse(m *RawMetric) (MetricData, error) {
+func (input *BasicInput) Parse(m *RawMetric) (MetricData, error) {
 	d := NewGeneralMetricData()
 
 	for k, v := range m.Labels {
@@ -78,10 +78,6 @@ func NewGeneralMetricData() *BasicMetricData {
 	return &BasicMetricData{
 		Labels: make(map[string]string),
 	}
-}
-
-func (d *BasicMetricData) GetEntityID() (string, error) {
-	return "", nil
 }
 
 func (d *BasicMetricData) GetValue() float64 {

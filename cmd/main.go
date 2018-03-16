@@ -16,7 +16,7 @@ var (
 func parseFlags() {
 	flag.Set("logtostderr", "true")
 	flag.StringVar(&prometheusHost, "promUrl", "http://localhost:19090", "the address of prometheus server")
-	flag.StringVar(&query, "query", "http_requests_total", "the query for metrics from prometheus")
+	flag.StringVar(&query, "query", "rate(http_requests_total[3m])", "the query for metrics from prometheus")
 	flag.Parse()
 }
 
@@ -29,7 +29,7 @@ func getJobs(mclient *prometheus.RestClient) {
 	glog.V(1).Infof("jobs: %v", msg)
 }
 
-func testPrometheus(mclient *prometheus.RestClient) {
+func testIstio(mclient *prometheus.RestClient) {
 	glog.V(2).Infof("Begin to test prometheus client...")
 	getJobs(mclient)
 
@@ -37,11 +37,10 @@ func testPrometheus(mclient *prometheus.RestClient) {
 	return
 }
 
-func testGeneral(mclient *prometheus.RestClient) {
-	glog.V(2).Infof("Begin to test general client ...")
-	input := prometheus.NewGeneralPrometheusInput()
+func testBasic(mclient *prometheus.RestClient) {
+	glog.V(2).Infof("Begin to test basic client ...")
+	input := prometheus.NewBasicInput()
 
-	query := "rate(istio_request_count[3m])"
 	input.SetQuery(query)
 	result, err := mclient.GetMetrics(input)
 	if err != nil {
@@ -59,8 +58,8 @@ func main() {
 	if err != nil {
 		glog.Fatalf("Failed to generate client: %v", err)
 	}
-	testPrometheus(mclient)
-	testGeneral(mclient)
+	testBasic(mclient)
+	testIstio(mclient)
 
 	return
 }

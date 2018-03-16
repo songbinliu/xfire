@@ -26,6 +26,7 @@ type RestClient struct {
 	password string
 }
 
+// NewRestClient create a new prometheus HTTP API client
 func NewRestClient(host string) (*RestClient, error) {
 	//1. get http client
 	client := &http.Client{
@@ -53,12 +54,14 @@ func NewRestClient(host string) (*RestClient, error) {
 	}, nil
 }
 
+// SetUser set the login user/password for the prometheus client
 func (c *RestClient) SetUser(username, password string) {
 	c.username = username
 	c.password = password
 }
 
-func (c *RestClient) Query(query string) (*promData, error) {
+// Query query the prometheus server, and return the rawData
+func (c *RestClient) Query(query string) (*RawData, error) {
 	p := fmt.Sprintf("%v%v", c.host, apiQueryPath)
 	glog.V(4).Infof("path=%v, query=%v", p, query)
 
@@ -107,6 +110,11 @@ func (c *RestClient) Query(query string) (*promData, error) {
 	return ss.Data, nil
 }
 
+// GetMetrics send a query to prometheus server, and return a list of MetricData
+//   Note: it only support 'vector query: the data in the response is a 'vector'
+//          not a 'matrix' (range query), 'string', or 'scalar'
+//   (1) the RequestInput will generate a query;
+//   (2) the RequestInput will parse the response into a list of MetricData
 func (c *RestClient) GetMetrics(input RequestInput) ([]MetricData, error) {
 	result := []MetricData{}
 
@@ -147,6 +155,8 @@ func (c *RestClient) GetMetrics(input RequestInput) ([]MetricData, error) {
 	return result, nil
 }
 
+// GetJobs  get the all the jobs in the current prometheus server
+//     it is only used for testing.
 func (c *RestClient) GetJobs() (string, error) {
 	p := fmt.Sprintf("%v%v%v", c.host, apiPath, "label/job/values")
 	glog.V(2).Infof("path=%v", p)
@@ -175,18 +185,6 @@ func (c *RestClient) GetJobs() (string, error) {
 
 	glog.V(3).Infof("resp: %++v", resp)
 	glog.V(3).Infof("result: %++v", string(result))
-
-	//3. parse response
-	ss := promeResponse{}
-	if err := json.Unmarshal(result, &ss); err != nil {
-		glog.Errorf("Failed to unmarshall respone: %v", err)
-	}
-
-	if ss.Status == "error" {
-		glog.Errorf("Error: %v", ss.Status)
-	} else {
-		glog.V(3).Infof("parsed: %++v", ss)
-	}
 
 	return string(result), nil
 }
