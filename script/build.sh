@@ -2,5 +2,5 @@
 
 glide update --strip-vendor
 
-go build
+make build
 
