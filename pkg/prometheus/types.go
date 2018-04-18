@@ -63,7 +63,7 @@ func (input *BasicInput) SetQuery(q string) {
 }
 
 func (input *BasicInput) Parse(m *RawMetric) (MetricData, error) {
-	d := NewGeneralMetricData()
+	d := NewBasicMetricData()
 
 	for k, v := range m.Labels {
 		d.Labels[k] = v
@@ -76,7 +76,7 @@ func (input *BasicInput) Parse(m *RawMetric) (MetricData, error) {
 	return d, nil
 }
 
-func NewGeneralMetricData() *BasicMetricData {
+func NewBasicMetricData() *BasicMetricData {
 	return &BasicMetricData{
 		Labels: make(map[string]string),
 	}
