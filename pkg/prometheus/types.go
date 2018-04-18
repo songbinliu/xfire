@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/glog"
 	"github.com/prometheus/common/model"
 	"math"
 )
 
 // for internal use only
 type promeResponse struct {
-	Status    string    `json:"status"`
+	Status    string   `json:"status"`
 	Data      *RawData `json:"data,omitempty"`
-	ErrorType string    `json:"errorType,omitempty"`
-	Error     string    `json:"error,omitempty"`
+	ErrorType string   `json:"errorType,omitempty"`
+	Error     string   `json:"error,omitempty"`
 }
 
 type RawData struct {
@@ -64,14 +65,9 @@ func (input *BasicInput) SetQuery(q string) {
 
 func (input *BasicInput) Parse(m *RawMetric) (MetricData, error) {
 	d := NewBasicMetricData()
-
-	for k, v := range m.Labels {
-		d.Labels[k] = v
-	}
-
-	d.Value = float64(m.Value.Value)
-	if math.IsNaN(d.Value) {
-		return nil, fmt.Errorf("Failed to convert value: NaN")
+	if err := d.Parse(m); err != nil {
+		glog.Errorf("Failed to parse raw metric: %v", err)
+		return nil, err
 	}
 	return d, nil
 }
@@ -84,6 +80,19 @@ func NewBasicMetricData() *BasicMetricData {
 
 func (d *BasicMetricData) GetValue() float64 {
 	return d.Value
+}
+
+func (d *BasicMetricData) Parse(m *RawMetric) error {
+	for k, v := range m.Labels {
+		d.Labels[k] = v
+	}
+
+	d.Value = float64(m.Value.Value)
+	if math.IsNaN(d.Value) {
+		return fmt.Errorf("Failed to convert value: NaN")
+	}
+
+	return nil
 }
 
 func (d *BasicMetricData) String() string {

@@ -9,7 +9,7 @@ import (
 
 const (
 	// three metric names
-	turboServiceLatencySumName = "istio_request_duration_sum"
+	turboServiceLatencySumName   = "istio_request_duration_sum"
 	turboServiceLatencyCountName = "istio_request_duration_count"
 	turboServiceRequestCountName = "istio_request_count"
 
@@ -59,7 +59,6 @@ func getRPSExp() string {
 	result := fmt.Sprintf("rate(%v{response_code=\"200\"}[%v])", name_count, du)
 	return result
 }
-
 
 // convert UID from "svcName.namespace.svc.cluster.local" to "svcName/namespace"
 // for example, "productpage.default.svc.cluster.local" to "default/productpage"

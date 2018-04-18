@@ -13,14 +13,13 @@ const (
 	istioServiceLabel = "destination_service"
 
 	metricSourceLabel = "metric_source"
-	metricTypeLabel = "metric_type"
+	metricTypeLabel   = "metric_type"
 
-	qpsValue = "transaction_used"
+	qpsValue     = "transaction_used"
 	latencyValue = "latency_used"
-
 )
 
-// IstioQuery : generate queries for Istio-Prometheus metrics 
+// IstioQuery : generate queries for Istio-Prometheus metrics
 // qtype 0: svc.request-per-second
 //       1: svc.latency
 type IstioQuery struct {
@@ -50,7 +49,7 @@ func NewIstioQuery() *IstioQuery {
 }
 
 func (q *IstioQuery) SetQueryType(t int) error {
-	if t < 0  || t > len(q.queryMap){
+	if t < 0 || t > len(q.queryMap) {
 		err := fmt.Errorf("Invalid query type: %d, vs 0|1", t)
 		glog.Error(err)
 		return err
@@ -112,7 +111,7 @@ func (d *IstioMetricData) Parse(m *pclient.RawMetric) error {
 
 	//2. add other labes
 	d.Labels[metricSourceLabel] = "istio"
-	if d.dtype == 0{
+	if d.dtype == 0 {
 		d.Labels[metricTypeLabel] = qpsValue
 	} else {
 		d.Labels[metricTypeLabel] = latencyValue
