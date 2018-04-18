@@ -55,7 +55,7 @@ func testBasic(mclient *prometheus.RestClient) {
 ```
 
 # the Istio example
-In [this example](https://github.com/songbinliu/client_prometheus/tree/master/pkg/example), we can get service _latency_ and _request-per-second_ in the [Istio example](https://istio.io/docs/tasks/telemetry/metrics-logs). 
+In [this example](https://github.com/songbinliu/client_prometheus/tree/master/pkg/example), we can get service _latency_ and _request-per-second_ in the [Istio example](https://istio.io/docs/tasks/telemetry/metrics-logs.html). 
 In addition, for each metric data, a uuid is generated based on the metric labels.
 
 ```go
