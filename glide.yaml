@@ -1,4 +1,4 @@
-package: github.com/appMetric
+package: github.com/songbinliu/xfire
 import:
 - package: github.com/prometheus/common/model
   version: 2e54d0b93cba2fd133edc32211dcc32c06ef72ca

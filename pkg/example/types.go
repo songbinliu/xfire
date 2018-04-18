@@ -6,7 +6,7 @@ import (
 	"github.com/golang/glog"
 	"math"
 
-	pclient "github.com/songbinliu/client_prometheus/pkg/prometheus"
+	pclient "github.com/songbinliu/xfire/pkg/prometheus"
 )
 
 const (

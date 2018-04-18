@@ -4,8 +4,8 @@ import (
 	"flag"
 	"github.com/golang/glog"
 
-	"github.com/songbinliu/client_prometheus/pkg/example"
-	"github.com/songbinliu/client_prometheus/pkg/prometheus"
+	"github.com/songbinliu/xfire/pkg/example"
+	"github.com/songbinliu/xfire/pkg/prometheus"
 )
 
 var (
