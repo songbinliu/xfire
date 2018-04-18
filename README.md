@@ -1,5 +1,5 @@
-# client_prometheus
-This is a [Prometheus](https://prometheus.io) metrics query sdk in Golang.
+# Xfire
+Xfire is a sdk to query metrics from [Prometheus](https://prometheus.io) in Golang.
 
 With this sdk, user can simply provide a query for a Prometheus server, the sdk will fetch the metrics,
 and return a list of [MetricData](https://github.com/songbinliu/client_prometheus/blob/118d5ef7a0c31fe0a076587f97720b7cd55f50ff/pkg/prometheus/types.go#L31).
