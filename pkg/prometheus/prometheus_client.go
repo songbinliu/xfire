@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"strings"
 )
 
 const (
@@ -34,6 +35,10 @@ func NewRestClient(host string) (*RestClient, error) {
 	}
 
 	//2. check whether it is using ssl
+	if !strings.HasPrefix(host, "http") {
+		host = "http://" + host
+	}
+
 	addr, err := url.Parse(host)
 	if err != nil {
 		glog.Errorf("Invalid url:%v, %v", host, err)
