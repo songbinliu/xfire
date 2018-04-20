@@ -67,6 +67,13 @@ func (c *RestClient) SetUser(username, password string) {
 
 // Query query the prometheus server, and return the rawData
 func (c *RestClient) Query(query string) (*RawData, error) {
+	query = strings.TrimSpace(query)
+	if len(query) < 1 {
+		err := fmt.Errorf("Prometheus query is empty")
+		glog.Errorf(err.Error())
+		return nil, err
+	}
+
 	p := fmt.Sprintf("%v%v", c.host, apiQueryPath)
 	glog.V(4).Infof("path=%v, query=%v", p, query)
 
